@@ -1,2 +1,4 @@
 # CoFFee
-Mutlibeam Sonar data processing toolbox in Matlab
+## Multibeam Sonar data processing toolbox in Matlab
+
+in progress..
