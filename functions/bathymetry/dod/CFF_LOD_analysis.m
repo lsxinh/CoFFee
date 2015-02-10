@@ -1,5 +1,5 @@
-function CFF_new_function(varargin)
-% CFF_new_function(varargin)
+function [V_ero, V_dep] = CFF_LOD_analysis(DOD,LOD,interval)
+% [V_ero(t), V_dep(t)] = CFF_LOD_analysis(DOD,LOD,interval)
 %
 % DESCRIPTION
 %
@@ -37,3 +37,4 @@ function CFF_new_function(varargin)
 %%%
 % Alex Schimel, Deakin University
 %%%
+
