@@ -1,5 +1,5 @@
-function [Z,X,Y] = CFF_clip_grid(Z,X,Y,xv,yv)
-% [Z,X,Y] = CFF_clip_grid(Z,X,Y,polygon)
+function [Z2,X2,Y2] = CFF_clip_grid(Z,X,Y,xv,yv)
+% [Z2,X2,Y2] = CFF_clip_grid(Z,X,Y,xv,yv)
 %
 % DESCRIPTION
 %
@@ -38,24 +38,27 @@ function [Z,X,Y] = CFF_clip_grid(Z,X,Y,xv,yv)
 % Alex Schimel, Deakin University
 %%%
 
-% polygons in indices of grids:
-xv = reshape(xv,1,numel(xv));
-yv = reshape(yv,numel(yv),1);
-
-% in easting northing coordinates:
-poly = [easting(1,xv)', northing(yv,1)];
-
-% build mask for each polygon
+% build mask
 mask = nan(size(Z));
-mask(inpolygon(easting,northing,poly(:,1),poly(:,2))) = 1;
+mask(inpolygon(X,Y,xv,yv)) = 1;
 
-% find the minimum and maximum of easting and northing
+% apply mask
+Z = Z.*mask;
 
-% compute and mask bathy diff
-bathyDiff = bathyDiff .* bathyMask;
+% find limits of data:
+dataZ = ~isnan(Z);
 
+rows = double(any(dataZ,2));
+irow_beg = find(rows,1,'first'); 
+irow_end = find(rows,1,'last'); 
 
+cols = double(any(dataZ,1));
+icol_beg = find(cols,1,'first'); 
+icol_end = find(cols,1,'last'); 
 
+% output
+Z2 = Z(irow_beg:irow_end,icol_beg:icol_end);
+X2 = X(irow_beg:irow_end,icol_beg:icol_end);
+Y2 = Y(irow_beg:irow_end,icol_beg:icol_end);
 
-[Z1,Z1_easting,Z1_northing] = CFF_clip_grid(Z1,Z1_easting,Z1_northing,polygon);
 

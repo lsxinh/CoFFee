@@ -1,4 +1,4 @@
-function [M,easting,northing] = CFF_readtif(tiffile,varargin)
+function [M,easting,northing] = CFF_readtif(tif_file,varargin)
 % CFF_new_function(varargin)
 %
 % DESCRIPTION
@@ -18,7 +18,7 @@ function [M,easting,northing] = CFF_readtif(tiffile,varargin)
 %
 % INPUT VARIABLES
 %
-% - tiffile
+% - tif_file
 % - varagin{1}: tfw file name
 %
 % OUTPUT VARIABLES
@@ -43,48 +43,49 @@ function [M,easting,northing] = CFF_readtif(tiffile,varargin)
 %%%
 
 % read tif file
-M = imread(tiffile);
+M = imread(tif_file);
 M = double(M);
-M( M == min(M(:)) ) = NaN; % some tif have NaN values in the second layer. use imfinfo to figure out and
 
-% getting dimensions
+% use minimum value in tiff as NaN value for now
+% some tif have NaN values in the second layer. use imfinfo to figure out
+% and change this code
+M( M == min(M(:)) ) = NaN;
+
+% indices grid
 row = [1:size(M,1)]';
 col = 1:size(M,2);
 [col,row] = meshgrid(col,row);
 
-% read tfw file if it exists and get easting/northing
+% now find the tfw file
 if nargin>1
-    
-    % read by replacing ext with tfw (to allow inputing other tif files to grab geo info from)
+    % check extension
     [pathstr,name,ext] = fileparts(varargin{1});
-    tfw = csvread([pathstr filesep name '.tfw']);
-    
+    if strcmp(ext,'.tfw')
+        % input is a tfw file
+        tfw_file = varargin{1};
+    else
+        % input is not a tfw file. Could be a tif file, which associated
+        % tfw we want. Change extension
+        tfw_file = [pathstr filesep name '.tfw'];
+    end
+else
+    % try find a tfw associated with input tif
+    [pathstr,name,ext] = fileparts(tif_file);
+    tfw_file = [pathstr filesep name '.tfw'];
+end
+
+% now check existence of tfw file and read it
+if exist(tfw_file,'file')
+    % read
+    tfw = csvread(tfw_file);
     % turn tfw to easting/northing grid
     easting = tfw(1).*col + tfw(3).*row + tfw(5);
     northing = tfw(2).*col + tfw(4).*row + tfw(6);
-    
 else
-    
-    % try find a tfw
-    [pathstr,name,ext] = fileparts(tiffile);
-    
-    try
-        
-        tfw = csvread([pathstr filesep name '.tfw']);
-        
-        % turn tfw to easting/northing grid
-        easting = tfw(1).*col + tfw(3).*row + tfw(5);
-        northing = tfw(2).*col + tfw(4).*row + tfw(6);
-        
-    catch
-        
-        % if tfw is not available, start from 1
-        easting = col;
-        northing = flipud(row);
-        
-    end
-    
+    % if tfw is not available, we'll use row and col for easting and
+    % northing by default
+    warning('Could not find a .tfw file. Exporting grid indices as easting/northing')
+    easting = col;
+    northing = flipud(row);
 end
-
-
 

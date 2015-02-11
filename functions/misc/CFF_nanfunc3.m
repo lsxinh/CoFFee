@@ -12,7 +12,7 @@ function out = CFF_nanfunc3(func,M,dim)
 % ...
 %
 % PROCESSING SUMMARY
-% 
+%
 % - ...
 % - ...
 % - ...
@@ -33,6 +33,7 @@ function out = CFF_nanfunc3(func,M,dim)
 %
 % NEW FEATURES
 %
+% 2015-02-11: dim now optional. to test
 % 2014-10-13: first version.
 %
 % EXAMPLE
@@ -47,8 +48,27 @@ function out = CFF_nanfunc3(func,M,dim)
 % Alex Schimel, Deakin University
 %%%
 
+% get size of M
 [m,n,p] = size(M);
 
+% if dim is not provided:
+if nargin<3
+    % operate along the first non-singleton dimension
+    if m>1
+        dim=1;
+    elseif n>1
+        dim=2;
+    elseif p>1
+        dim=3;
+    else
+        % input is a single element, apply function to it directly
+        tmp = M;
+        out = feval(func,tmp(~isnan(tmp)));
+        return
+    end
+end
+
+% operate function along the dimension specified
 switch dim
     case 1
         out = nan(1,n,p);
