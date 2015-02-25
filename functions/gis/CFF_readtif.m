@@ -1,10 +1,11 @@
 function [M,easting,northing] = CFF_readtif(tif_file,varargin)
-% CFF_new_function(varargin)
+% [M,easting,northing] = CFF_readtif(tif_file,varargin)
 %
 % DESCRIPTION
 %
 % read tif and tfw file. If tfw file unavailable, returns row and col
-% number.
+% number. 'prec' is the number of decimal digits, to be used to overcome
+% floating point notations issues.
 %
 % USE
 %
@@ -46,10 +47,16 @@ function [M,easting,northing] = CFF_readtif(tif_file,varargin)
 M = imread(tif_file);
 M = double(M);
 
-% use minimum value in tiff as NaN value for now
-% some tif have NaN values in the second layer. use imfinfo to figure out
-% and change this code
-M( M == min(M(:)) ) = NaN;
+% set no data value in tif to NaN
+ims = imfinfo(tif_file);
+if isfield(ims,'GDAL_NODATA')
+    % test 1: maybe tiff file has a GDAL_NODATA value
+    GDAL_NODATA = str2num(ims.GDAL_NODATA);
+    M( M == GDAL_NODATA ) = NaN;
+else
+    % last change, use minimum value in array for NaN
+    M( M == min(M(:)) ) = NaN;
+end
 
 % indices grid
 row = [1:size(M,1)]';
@@ -76,16 +83,21 @@ end
 
 % now check existence of tfw file and read it
 if exist(tfw_file,'file')
+    
     % read
-    tfw = csvread(tfw_file);
+    tfw = CFF_readtfw(tfw_file);
+     
     % turn tfw to easting/northing grid
     easting = tfw(1).*col + tfw(3).*row + tfw(5);
     northing = tfw(2).*col + tfw(4).*row + tfw(6);
+    
 else
+    
     % if tfw is not available, we'll use row and col for easting and
     % northing by default
     warning('Could not find a .tfw file. Exporting grid indices as easting/northing')
     easting = col;
     northing = flipud(row);
+    
 end
 

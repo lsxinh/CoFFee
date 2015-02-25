@@ -40,10 +40,10 @@ function [Z1out,Z2out,Xout,Yout] = CFF_coregister_grids(Z1,X1,Y1,Z2,X2,Y2,vararg
 %%%
 
 % get datasets resolutions:
-X1_res = X1(1,2)-X1(1,1);
-X2_res = X2(1,2)-X2(1,1);
-Y1_res = Y1(1,1)-Y1(2,1);
-Y2_res = Y2(1,1)-Y2(2,1);
+X1_res = CFF_get_vector_stepsize(X1(1,:));
+X2_res = CFF_get_vector_stepsize(X2(1,:));
+Y1_res = abs(CFF_get_vector_stepsize(Y1(:,1)));
+Y2_res = abs(CFF_get_vector_stepsize(Y2(:,1)));
 
 % output X Y resolution
 if nargin==6
@@ -102,6 +102,9 @@ if all(X1_res==[X2_res,Y1_res,Y2_res,Xout_res,Yout_res])
     Z2out( firstrow:firstrow+size(Z2,1)-1 , firstcol:firstcol+size(Z2,2)-1 ) = Z2;
     
 else
-    % if not, well we may need some interpolation
-    % to code...
+    % if not, need some interpolation
+    
+    Z1out = interp2(X1,Y1,Z1,Xout,Yout);
+    Z2out = interp2(X2,Y2,Z2,Xout,Yout);
+
 end

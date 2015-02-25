@@ -1,9 +1,11 @@
-function [v_bud,v_ero,v_dep,a_ero,a_dep,us_v_ero,us_v_dep,up_v_ero,up_v_dep] = CFF_LOD_analysis(DOD,DPU,X,Y,CONF)
-% [v_bud,v_ero,v_dep,a_ero,a_dep,us_v_ero,us_v_dep,up_v_ero,up_v_dep] = CFF_LOD_analysis(DOD,DPU,X,Y,CONF)
+function [v_bud,v_ero,v_dep,a_ero,a_dep,us_v_ero,us_v_dep,up_v_ero,up_v_dep] = CFF_LOD_analysis(DOD,X,Y,LOD,UNC)
+% [v_bud,v_ero,v_dep,a_ero,a_dep,us_v_ero,us_v_dep,up_v_ero,up_v_dep] = CFF_LOD_analysis(DOD,X,Y,LOD,UNC)
 %
 % DESCRIPTION
 %
-% use as template for a new function
+% Perform a LoD analysis, that is, calculate volumes eroded and deposited
+% using two co-registered grids: a difference of DEMs (DOD) and a threshold
+% grid (LOD). ALso use uncertainty to output intervals of confidence.
 %
 % USE
 %
@@ -38,14 +40,6 @@ function [v_bud,v_ero,v_dep,a_ero,a_dep,us_v_ero,us_v_dep,up_v_ero,up_v_dep] = C
 % Alex Schimel, Deakin University
 %%%
 
-% t value corresponding to the confidence limit in percentage
-t = CFF_critical_z_value(CONF);
-
-% Ucrit (as per Brasington et al., 2003; Lane et al., 2003; Wheaton et al., 2010; Milan et al., 2011; Lallias-Tacon et al. 2013; etc.
-% ="minimum level of detection threshold (LOD)"
-% ="LoD grid" (Carley et al., 2012)
-LOD = t.*DPU;
-
 % cell resolutions in X and Y and area
 Xres = X(1,2)-X(1,1);
 Yres = Y(1,1)-Y(2,1);
@@ -61,8 +55,8 @@ v_ero  = CFF_nansum3(CFF_nansum3(DOD .* DOD_ero_mask .* cellArea));
 a_ero  = sum(sum(double(DOD_ero_mask))).*cellArea;
 
 % The volume uncertainty of each cell is given by the product of the cell
-% area by the cell DPU.
-u_v_ero = DPU .* DOD_ero_mask .* cellArea;
+% area by the cell uncertainty.
+u_v_ero = UNC .* DOD_ero_mask .* cellArea;
 
 % uncertainty in natural sum:
 us_v_ero = CFF_nansum3(CFF_nansum3(u_v_ero)); 
@@ -81,7 +75,7 @@ a_dep   = sum(sum(double(DOD_dep_mask))).*cellArea;
 
 % The volume uncertainty of a cell is given by the product of the cell area
 % by the cell DPU.
-u_v_dep = DPU .* DOD_dep_mask .* cellArea;
+u_v_dep = UNC .* DOD_dep_mask .* cellArea;
 
 % uncertainty in natural sum:
 us_v_dep = CFF_nansum3(CFF_nansum3(u_v_dep)); 
