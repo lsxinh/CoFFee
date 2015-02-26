@@ -53,31 +53,19 @@ yv = polygon(:,2);
 % create dod from grids 
 [DOD,DOD_easting,DOD_northing] = CFF_create_DOD(Z1,Z1_easting,Z1_northing,Z2,Z2_easting,Z2_northing);
 
-[DODmean,DODstd] = CFF_nanstat3(DOD(:),1);
+% read uncertainty tif files:
+[U1,U1_easting,U1_northing] = CFF_readtif(U1_file,Z1_file);
+[U2,U2_easting,U2_northing] = CFF_readtif(U2_file,Z2_file);
 
-if nargin>3
-    
-    % read uncertainty tif files:
-    [U1,U1_easting,U1_northing] = CFF_readtif(U1_file,Z1_file);
-    [U2,U2_easting,U2_northing] = CFF_readtif(U2_file,Z2_file);
+% clip uncertainty grids to polygon
+[U1,U1_easting,U1_northing] = CFF_clip_grid(U1,U1_easting,U1_northing,xv,yv);
+[U2,U2_easting,U2_northing] = CFF_clip_grid(U2,U2_easting,U2_northing,xv,yv);
 
-    % clip uncertainty grids to polygon
-    [U1,U1_easting,U1_northing] = CFF_clip_grid(U1,U1_easting,U1_northing,xv,yv);
-    [U2,U2_easting,U2_northing] = CFF_clip_grid(U2,U2_easting,U2_northing,xv,yv);
+% create propagated uncertainty grid
+[DPU,DPU_easting,DPU_northing] = CFF_create_DPU(U1,U1_easting,U1_northing,U2,U2_easting,U2_northing);
 
-    % create propagated uncertainty grid
-    [DPU,DPU_easting,DPU_northing] = CFF_create_DPU(U1,U1_easting,U1_northing,U2,U2_easting,U2_northing);
-
-    % grids should be co-registered, but just in case of:
-    [DOD,DPU,X,Y] = CFF_coregister_grids(DOD,DOD_easting,DOD_northing,DPU,DPU_easting,DPU_northing);
-
-else
-    
-    uncertainty = 0.14;
-    
-end
-
-
+% DOD and DPU should be co-registered, but just in case of:
+[DOD,DPU,X,Y] = CFF_coregister_grids(DOD,DOD_easting,DOD_northing,DPU,DPU_easting,DPU_northing);
 
 % now run multi-LOD analysis
 sigma = [0:1:30];
@@ -88,13 +76,13 @@ for i = 1:length(sigma)
     % first we threshold at a constant value, a factor of the std of a reference area:
     uncertainty = 0.14;
     threshold = sigma(i).*uncertainty;
-    [v_bud(i),v_ero(i),v_dep(i),a_ero(i),a_dep(i),us_v_ero(i),us_v_dep(i),up_v_ero(i),up_v_dep(i)] = CFF_LOD_analysis(DOD,X,Y,threshold,uncertainty);
+    [v_bud(i),v_ero(i),v_dep(i),a_ero(i),a_dep(i),us_v_ero(i),us_v_dep(i),up_v_ero(i),up_v_dep(i)] = CFF_LOD_volumes(DOD,X,Y,threshold,uncertainty);
 
     % second, we threshold at a spatially variable value, a factor of the
     % grid std, propagated in quadrature from the individual grids.
     uncertainty = DPU;
     threshold = sigma(i).*DPU;
-    [v_bud(i),v_ero(i),v_dep(i),a_ero(i),a_dep(i),us_v_ero(i),us_v_dep(i),up_v_ero(i),up_v_dep(i)] = CFF_LOD_analysis(DOD,X,Y,threshold,uncertainty);
+    [v_bud(i),v_ero(i),v_dep(i),a_ero(i),a_dep(i),us_v_ero(i),us_v_dep(i),up_v_ero(i),up_v_dep(i)] = CFF_LOD_volumes(DOD,X,Y,threshold,uncertainty);
     
 end
 

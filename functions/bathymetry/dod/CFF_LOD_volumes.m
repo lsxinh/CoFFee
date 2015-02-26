@@ -1,9 +1,9 @@
-function [v_bud,v_ero,v_dep,a_ero,a_dep,us_v_ero,us_v_dep,up_v_ero,up_v_dep] = CFF_LOD_analysis(DOD,X,Y,LOD,UNC)
-% [v_bud,v_ero,v_dep,a_ero,a_dep,us_v_ero,us_v_dep,up_v_ero,up_v_dep] = CFF_LOD_analysis(DOD,X,Y,LOD,UNC)
+function [v_bud,v_ero,v_dep,a_ero,a_dep,us_v_ero,us_v_dep,up_v_ero,up_v_dep] = CFF_LOD_volumes(DOD,X,Y,LOD,UNC)
+% [v_bud,v_ero,v_dep,a_ero,a_dep,us_v_ero,us_v_dep,up_v_ero,up_v_dep] = CFF_LOD_volumes(DOD,X,Y,LOD,UNC)
 %
 % DESCRIPTION
 %
-% Perform a LoD analysis, that is, calculate volumes eroded and deposited
+% Calculate volumes eroded and deposited from two DEMS.
 % using two co-registered grids: a difference of DEMs (DOD) and a threshold
 % grid (LOD). ALso use uncertainty to output intervals of confidence.
 %
