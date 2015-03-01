@@ -1,5 +1,5 @@
-function [Z2,X2,Y2] = CFF_clip_grid(Z,X,Y,xv,yv)
-% [Z2,X2,Y2] = CFF_clip_grid(Z,X,Y,xv,yv)
+function [Z2,X2,Y2] = CFF_clip_raster(Z,X,Y,xv,yv)
+% [Z2,X2,Y2] = CFF_clip_raster(Z,X,Y,xv,yv)
 %
 % DESCRIPTION
 %
@@ -40,13 +40,14 @@ function [Z2,X2,Y2] = CFF_clip_grid(Z,X,Y,xv,yv)
 
 % build mask
 mask = nan(size(Z));
-mask(inpolygon(X,Y,xv,yv)) = 1;
+temp = inpolygon(X,Y,xv,yv);
+mask(temp) = 1;
 
 % apply mask
-Z = Z.*mask;
+newZ = Z.*mask;
 
 % find limits of data:
-dataZ = ~isnan(Z);
+dataZ = ~isnan(newZ);
 
 rows = double(any(dataZ,2));
 irow_beg = find(rows,1,'first'); 
@@ -57,7 +58,7 @@ icol_beg = find(cols,1,'first');
 icol_end = find(cols,1,'last'); 
 
 % output
-Z2 = Z(irow_beg:irow_end,icol_beg:icol_end);
+Z2 = newZ(irow_beg:irow_end,icol_beg:icol_end);
 X2 = X(irow_beg:irow_end,icol_beg:icol_end);
 Y2 = Y(irow_beg:irow_end,icol_beg:icol_end);
 

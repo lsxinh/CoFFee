@@ -3,7 +3,7 @@ function [X,Y] = CFF_read_arcmap_table_XY(filename)
 %
 % DESCRIPTION
 %
-% use as template for a new function
+% quick dirty function to read XY data in arcmap tables exported as text
 %
 % USE
 %

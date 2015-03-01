@@ -44,20 +44,20 @@ yv = polygon(:,2);
 
 tic
 % read grid tif files:
-[Z1,Z1_easting,Z1_northing] = CFF_readtif(Z1_file);
-[Z2,Z2_easting,Z2_northing] = CFF_readtif(Z2_file);
+[Z1,Z1_easting,Z1_northing] = CFF_read_tif(Z1_file);
+[Z2,Z2_easting,Z2_northing] = CFF_read_tif(Z2_file);
 
 toc
 tic
 
 % clip grids to polygon
-[Z1,Z1_easting,Z1_northing] = CFF_clip_grid(Z1,Z1_easting,Z1_northing,xv,yv);
-[Z2,Z2_easting,Z2_northing] = CFF_clip_grid(Z2,Z2_easting,Z2_northing,xv,yv);
+[Z1,Z1_easting,Z1_northing] = CFF_clip_raster(Z1,Z1_easting,Z1_northing,xv,yv);
+[Z2,Z2_easting,Z2_northing] = CFF_clip_raster(Z2,Z2_easting,Z2_northing,xv,yv);
 
 toc
 
 % create dod from grids
-[DOD,DOD_easting,DOD_northing] = CFF_create_DOD(Z1,Z1_easting,Z1_northing,Z2,Z2_easting,Z2_northing);
+[DOD,DOD_easting,DOD_northing] = CFF_calculate_DOD(Z1,Z1_easting,Z1_northing,Z2,Z2_easting,Z2_northing);
 
 if nargin>4
     
@@ -66,18 +66,18 @@ if nargin>4
     U2_file = varargin{2};
     
     % read uncertainty tif files:
-    [U1,U1_easting,U1_northing] = CFF_readtif(U1_file,Z1_file);
-    [U2,U2_easting,U2_northing] = CFF_readtif(U2_file,Z2_file);
+    [U1,U1_easting,U1_northing] = CFF_read_tif(U1_file,Z1_file);
+    [U2,U2_easting,U2_northing] = CFF_read_tif(U2_file,Z2_file);
     
     % clip uncertainty grids to polygon
-    [U1,U1_easting,U1_northing] = CFF_clip_grid(U1,U1_easting,U1_northing,xv,yv);
-    [U2,U2_easting,U2_northing] = CFF_clip_grid(U2,U2_easting,U2_northing,xv,yv);
+    [U1,U1_easting,U1_northing] = CFF_clip_raster(U1,U1_easting,U1_northing,xv,yv);
+    [U2,U2_easting,U2_northing] = CFF_clip_raster(U2,U2_easting,U2_northing,xv,yv);
     
     % create propagated uncertainty grid
-    [DPU,DPU_easting,DPU_northing] = CFF_create_DPU(U1,U1_easting,U1_northing,U2,U2_easting,U2_northing);
+    [DPU,DPU_easting,DPU_northing] = CFF_calculate_DPU(U1,U1_easting,U1_northing,U2,U2_easting,U2_northing);
     
     % DOD and DPU should be co-registered, but just in case of:
-    [DOD,DPU,DOD_easting,DOD_northing] = CFF_coregister_grids(DOD,DOD_easting,DOD_northing,DPU,DPU_easting,DPU_northing);
+    [DOD,DPU,DOD_easting,DOD_northing] = CFF_coregister_rasters(DOD,DOD_easting,DOD_northing,DPU,DPU_easting,DPU_northing);
     
     % now run multi-LOD analysis
     sigma = [0:1:30];

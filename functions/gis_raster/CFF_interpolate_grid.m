@@ -1,5 +1,5 @@
-function gridDepthInterp = CFF_interpolate_grid(gridEasting,gridNorthing,gridDepth,strel_size)
-% gridDepthInterp = CFF_interpolate_grid(gridEasting,gridNorthing,gridDepth,strel_size)
+function Zout = CFF_interpolate_grid(X,Y,Z,strel_size)
+% Zout = CFF_interpolate_grid(X,Y,Z,strel_size)
 %
 % DESCRIPTION
 %
@@ -57,24 +57,24 @@ extra = 10; % number of rows and columns of data we add to the split values
             
 % create the arrays containing the indices of each small grids
 % (DTMminE, DTMmaxE, DTMminN, DTMmaxN):
-N = ceil(length(gridNorthing)./nNo);
-E = ceil(length(gridEasting)./nEa);
+N = ceil(length(Y)./nNo);
+E = ceil(length(X)./nEa);
 
-temp = [1:N:length(gridNorthing)]';
+temp = [1:N:length(Y)]';
 temp = temp*ones(1,nEa);
 fine(:,1) = reshape(temp', size(temp,1).*size(temp,2),1);
 
-temp = [1:N:length(gridNorthing)]'+N-1;
-temp(end) = length(gridNorthing);
+temp = [1:N:length(Y)]'+N-1;
+temp(end) = length(Y);
 temp = temp*ones(1,nEa);
 fine(:,2) = reshape(temp', size(temp,1).*size(temp,2),1);
 
-temp = [1:E:length(gridEasting)]';
+temp = [1:E:length(X)]';
 temp = temp*ones(1,nNo);
 fine(:,3) = reshape(temp, size(temp,1).*size(temp,2),1);
 
-temp = [1:E:length(gridEasting)]'+E-1;
-temp(end) = length(gridEasting);
+temp = [1:E:length(X)]'+E-1;
+temp(end) = length(X);
 temp = temp*ones(1,nNo);
 fine(:,4) = reshape(temp, size(temp,1).*size(temp,2),1);
 
@@ -87,20 +87,20 @@ fine2(:,3) = fine(:,3)-extra;
 fine2(:,4) = fine(:,4)+extra;
 
 fine2(fine2<1) = 1;
-fine2(fine2(:,1)>length(gridNorthing),1) = length(gridNorthing);
-fine2(fine2(:,2)>length(gridNorthing),2) = length(gridNorthing);
-fine2(fine2(:,3)>length(gridEasting),3) = length(gridEasting);
-fine2(fine2(:,4)>length(gridEasting),4) = length(gridEasting);
+fine2(fine2(:,1)>length(Y),1) = length(Y);
+fine2(fine2(:,2)>length(Y),2) = length(Y);
+fine2(fine2(:,3)>length(X),3) = length(X);
+fine2(fine2(:,4)>length(X),4) = length(X);
 
 
 % initialize interpolated DTM
-gridDepth2 = nan(size(gridDepth));
+Z2 = nan(size(Z));
 
 % interpolate small grids separately
 for ii = 1:size(fine,1)
     
     % extract original data (patch+extra)
-    patch = gridDepth(fine2(ii,1):fine2(ii,2),fine2(ii,3):fine2(ii,4));
+    patch = Z(fine2(ii,1):fine2(ii,2),fine2(ii,3):fine2(ii,4));
         
     a = find(sum(~isnan(patch)) ~=0);  % list of non-empty columns
     b = find(sum(~isnan(patch')) ~=0); % list of non-empty rows  
@@ -132,12 +132,12 @@ for ii = 1:size(fine,1)
     InterpPatch(1:fine(ii,1)-fine2(ii,1),:) = [];
     
     % replace in new dataset
-    gridDepth2(fine(ii,1):fine(ii,2),fine(ii,3):fine(ii,4)) = InterpPatch;
+    Z2(fine(ii,1):fine(ii,2),fine(ii,3):fine(ii,4)) = InterpPatch;
     
 end    
 
 % remove -999 values
-gridDepth2(gridDepth2==-999) = NaN;
+Z2(Z2==-999) = NaN;
 
 
 %% MASK EXTRAPOLATION
@@ -148,7 +148,7 @@ gridDepth2(gridDepth2==-999) = NaN;
 % adapt the structuring element to the size of the gaps to close
 H = CFF_disk(strel_size); % structuring element
 
-Mask = gridDepth;
+Mask = Z;
 Mask(~isnan(Mask)) = 1;
 Mask(isnan(Mask)) = 0;
 
@@ -158,4 +158,4 @@ NewMask = CFF_imclose(Mask,H);
 NewMask(NewMask==0) = NaN;
 
 % apply Mask to interpolated DTM:
-gridDepthInterp = gridDepth2.*NewMask;
+Zout = Z2.*NewMask;

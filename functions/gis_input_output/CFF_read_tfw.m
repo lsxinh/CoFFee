@@ -1,5 +1,5 @@
-function [tfw,prec] = CFF_readtfw(tfw_file)
-% [tfw,prec] = CFF_readtfw(tfw_file)
+function [tfw,prec] = CFF_read_tfw(tfw_file)
+% [tfw,prec] = CFF_read_tfw(tfw_file)
 %
 % DESCRIPTION
 %

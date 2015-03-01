@@ -1,5 +1,5 @@
-function [Z1out,Z2out,Xout,Yout] = CFF_coregister_grids(Z1,X1,Y1,Z2,X2,Y2,varargin)
-% CFF_new_function(varargin)
+function [Z1out,Z2out,Xout,Yout] = CFF_coregister_rasters(Z1,X1,Y1,Z2,X2,Y2,varargin)
+% [Z1out,Z2out,Xout,Yout] = CFF_coregister_rasters(Z1,X1,Y1,Z2,X2,Y2,varargin)
 %
 % DESCRIPTION
 %
@@ -88,8 +88,8 @@ minY = min([Y1(end,1);Y2(end,1)]);
 maxY = max([Y1(1,1);Y2(1,1)]);
 [Xout,Yout] = meshgrid([minX:Xout_res:maxX],[maxY:-Yout_res:minY]);
 
-% if all resolutions are the same, just fit input grids into output grids
-if all(X1_res==[X2_res,Y1_res,Y2_res,Xout_res,Yout_res])
+% if original X&Y fit in output X&Y, just fit grids
+if all(ismember(X1(1,:),Xout(1,:))) && all(ismember(X2(1,:),Xout(1,:))) && all(ismember(Y1(:,1),Yout(:,1))) && all(ismember(Y2(:,1),Yout(:,1)))
     
     firstcol = find(Xout(1,:)==X1(1));
     firstrow = find(Yout(:,1)==Y1(1));

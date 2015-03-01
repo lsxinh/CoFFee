@@ -1,5 +1,5 @@
-function [M,easting,northing] = CFF_readtif(tif_file,varargin)
-% [M,easting,northing] = CFF_readtif(tif_file,varargin)
+function [M,easting,northing] = CFF_read_tif(tif_file,varargin)
+% [M,easting,northing] = CFF_read_tif(tif_file,varargin)
 %
 % DESCRIPTION
 %
@@ -85,7 +85,7 @@ end
 if exist(tfw_file,'file')
     
     % read
-    tfw = CFF_readtfw(tfw_file);
+    tfw = CFF_read_tfw(tfw_file);
      
     % turn tfw to easting/northing grid
     easting = tfw(1).*col + tfw(3).*row + tfw(5);
